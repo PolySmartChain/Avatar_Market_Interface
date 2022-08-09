@@ -1,0 +1,10 @@
+{
+  "fee": "0.001",
+  "chainId": 6999,
+  "tokenStandard": "ERC721",
+  "MarketAddress": "0xfD2748660C74917B7e7AB31913700f4d83090D96",
+  "wdc_address": "0xE02E94D9F9f346AE91A11db1c27F5A11B16aD1C9",
+  "polydaoAddress": "0x22843012988eBe8d44EF104eb5E02157322f3C1E",
+  "proxyAddress": "0xBE81507FA2b50FBB523f30C795A9F19ed5A21670",
+  "potionAddress": "http://192.168.1.11:8081"
+}

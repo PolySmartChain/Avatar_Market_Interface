@@ -1,0 +1,9 @@
+[
+    {
+      "chainId":6999,
+      "label":"PSC",
+      "is_testnet":true,
+      "link": "https://scan.polysmartchain.com/"
+    }
+
+]

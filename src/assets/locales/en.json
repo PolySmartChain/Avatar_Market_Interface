@@ -1,0 +1,73 @@
+{
+  "Home": {
+    "welcome1": "Welcome To",
+    "welcome2": "Poly Jet Club",
+    "claim": "Claim",
+    "claimBatch": "Claim Batch"
+  },
+  "Transfer": {
+    "trans": "Transfer",
+    "sell": "Sell",
+    "cancel": "Cancel listing",
+    "transItem": "Transfer your item",
+    "invalid": "Invalid address or ENS name",
+    "confirm": "Confirm",
+    "address": "Address"
+  },
+  "Assets": {
+    "properties": "Properties",
+    "trait": "have this trait",
+    "details": "Details",
+    "address": "Contract Address",
+    "token": "Token ID",
+    "stand": "Token Standard",
+    "chain": "Blockchain",
+    "about": "About Poly Jet Club",
+    "mess": "The Poly Jet Club is a collection of 10,000 unique Pineapple NFTs— unique digital collectibles living on the PSC blockchain. Your Pineapple doubles as your Jet Club membership card, and grants access to members-only benefits, the first of which is access to Polylandspace, becoming the first-class citizen of Poly Metaverse & receiving multiple Airdrops. Future areas and perks can be unlocked by the community through roadmap activation. Visit <a href = 'http://polyjetclub.polysmartchain.com'>polyjetclub.polysmartchain.com</a> for more details.",
+    "description": "Description",
+    "create": "Created by PolyJetClub",
+    "activity": "Activity",
+    "eve": "Event",
+    "price": "Price",
+    "from": "From",
+    "to": "To",
+    "date": "Date",
+    "polydao":"Can polydao be synthesized"
+  },
+  "Trans": {
+    "succ": " Successful!",
+    "view": "View On PSCscan",
+    "fail": "Transaction Failed!"
+  },
+  "Tx": {
+    "event": "Event",
+    "txid": "Txid",
+    "date": "Date",
+    "state": "State",
+    "pending": "Pending..."
+  },
+  "connect": "Connect",
+  "payment": "Payment Method:",
+  "clear": "clear all",
+  "link": "Go To PolyJetClub WhiteList",
+  "personal": "Personal",
+  "ge": "",
+  "search": "Search By Token_Id",
+  "select": "Select...",
+  "dateold": "Date：Oldest",
+  "datenew": "Date：Newest",
+  "pricelow": "Price：Lowest",
+  "pricehigh": "Price：Highest",
+  "owner": "Owner",
+  "buynow": "Buy Now",
+  "surebuyf": "*Are you sure you want to purchase this PolyJet at a price of",
+  "surebuyb": "？",
+  "surecancel": "*Are you sure you want to cancel your listing?",
+  "welcome": "Welcome To Market",
+  "enterprice": "Enter Price...",
+  "collection": "Collection",
+  "forsale": "For Sale",
+  "fee": "Trade Fee",
+  "yes":"YES",
+  "no":"NO"
+}

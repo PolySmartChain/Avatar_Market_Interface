@@ -1,0 +1,74 @@
+{
+  "Home": {
+    "welcome1": "歡迎加入",
+    "welcome2": "菠萝俱乐部",
+    "claim": "申領",
+    "claimBatch": "批量申領"
+  },
+  "Transfer": {
+    "trans": "轉賬",
+    "sell": "出售",
+    "cancel": "下架",
+    "transItem": "轉移您的物品",
+    "invalid": "地址或 ENS 名稱無效",
+    "confirm": "確認",
+    "address": "地址"
+  },
+  "Assets": {
+    "properties": "屬性",
+    "trait": "擁有這個部件",
+    "details": "細節",
+    "address": "合約地址",
+    "token": "代幣 ID",
+    "stand": "代幣標準",
+    "chain": "區塊鏈",
+    "about": "關於菠蘿俱樂部",
+    "mess": "菠萝俱乐部是 10,000 個獨特的菠萝NFT —— 铸造在 PSC 區塊鏈上的獨特數字收藏品。 您的菠萝NFT可兼作您的菠萝元宇宙會員卡，並授予會員專屬福利，首先是訪問菠萝大陆，成為菠萝元宇宙的一等公民並獲得多個空投。 社區可以通過激活路線圖來解鎖未來的領域和福利。 訪問  <a href = 'http://polyjetclub.polysmartchain.com'>polyjetclub.polysmartchain.com </a>了解更多詳情。",
+
+    "description": "描述",
+    "create": "由菠萝俱乐部創建",
+    "activity": "交易記錄",
+    "eve": "事件",
+    "price": "價格",
+    "from": "從",
+    "to": "到",
+    "date": "日期",
+    "polydao":"是否可合成polydao"
+  },
+  "Trans": {
+    "succ": " 成功!",
+    "view": "在 Etherscan 上查看",
+    "fail": "交易失敗!"
+  },
+  "Tx": {
+    "event": "事務",
+    "txid": "事務ID",
+    "date": "日期",
+    "state": "狀態",
+    "pending": "等待..."
+  },
+  "connect": "連接",
+  "payment": "支付方式:",
+  "clear": "清除",
+  "link": "菠萝俱乐部白名單",
+  "personal": "個人中心",
+  "ge": "個",
+  "search":"通過Token_Id搜索",
+  "select":"選擇",
+  "dateold":"日期:由遠及近",
+  "datenew":"日期:由近及遠",
+  "pricelow":"價格:由低到高",
+  "pricehigh":"價格:由高到低",
+  "owner":"拥有者",
+  "buynow":"现在购买",
+  "surebuyf":"*您確定要以",
+  "surebuyb":"價格購買此菠蘿吗？",
+  "surecancel":"*您確定要下架嗎?",
+  "welcome":"歡迎來到市場",
+  "enterprice":"輸入價格",
+  "collection":"收藏",
+  "forsale":"出售",
+  "fee": "交易手續費",
+  "yes":"是",
+  "no":"否"
+}

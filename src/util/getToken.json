@@ -1,0 +1,18 @@
+{
+  "token": [
+    {
+      "value": "0",
+      "name": "PSC",
+      "label": "PSC",
+      "address": "",
+      "img": ""
+    },
+    {
+      "value": "1",
+      "name": "WDC",
+      "label": "WDC",
+      "address": "",
+      "img": ""
+    }
+  ]
+}

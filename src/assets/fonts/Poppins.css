@@ -1,0 +1,18 @@
+@charset "UTF-8";
+
+@font-face {
+  font-family: "Poppins";
+  src: url("PoppinsMedium.woff2") format("woff2"),
+    url("PoppinsMedium.woff") format("woff"),
+    url("PoppinsMedium.ttf") format("truetype"),
+    url("PoppinsMedium.eot") format("embedded-opentype"),
+    url("PoppinsMedium.svg") format("svg");
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: "PoppinsBold";
+  src: url("Poppins-Bold.ttf");
+  font-weight: bold;
+  font-style: bold;
+}

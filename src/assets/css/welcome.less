@@ -1,0 +1,447 @@
+@home_color: #172b4d;
+.home {
+  height: 100%;
+  overflow-y: auto;
+  // overflow: hidden;
+  background: url("../img/banner.png") no-repeat;
+  background-position: top 118px right -38px;
+}
+.home-wraper {
+  width: 1780px;
+  min-height: 100%;
+  margin: 0 auto;
+
+  .left {
+    height: 100vh;
+    white-space: nowrap;
+    min-height: 839px;
+  }
+  .avatar-list-box {
+    height: 100%;
+    display: inline-block;
+    overflow: hidden;
+    position: relative;
+    width: 415px;
+  }
+  .avatar-list-box:first-child {
+    margin-right: 36px;
+  }
+  .avator_item {
+    width: 415px;
+    height: 415px;
+    margin-bottom: 36px;
+    position: relative;
+  }
+  .avator_item::after {
+    content: "";
+    width: 100%;
+    height: 100%;
+    left: 0px;
+    top: 0px;
+    background: rgba(0, 0, 0, 0.4);
+    position: absolute;
+  }
+  .avator_item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .avator_item:last-child {
+    margin-bottom: 0px;
+  }
+  .bottom-avatar-list-box {
+    .avator_list {
+      position: absolute;
+      bottom: 0px;
+      left: 0px;
+    }
+  }
+  .right {
+    margin-left: 74px;
+    position: relative;
+  }
+  .left-mini {
+    display: none;
+  }
+}
+.link_box {
+  position: absolute;
+  top: 150px;
+  font-size: 24px;
+  font-family: "PoppinsBold" !important;
+}
+.link_box a {
+  color: #2081e2;
+  font-size: 24px;
+  font-weight: bold;
+  background: url(../img/back_home.png) left center no-repeat;
+  padding-left: 30px;
+}
+
+.text-welcome {
+  font-size: 120px;
+  color: @home_color;
+  padding-top: 220px;
+  line-height: 1.5;
+  font-family: "PoppinsBold" !important;
+  font-weight: 700;
+  p {
+    white-space: nowrap;
+  }
+}
+.text-welcome .p2 {
+}
+.intro {
+  font-size: 18px;
+  color: @home_color;
+  opacity: 0.5; /*max-width: 608px;*/
+  padding-top: 70px;
+  padding-bottom: 45px;
+  word-break: break-all;
+  letter-spacing: 1px;
+  line-height: 30px;
+  word-break: break-word;
+  /*text-align: justify;*/
+}
+
+.contact_box {
+  padding: 36px 0;
+  .item {
+    display: inline-block;
+    padding: 4px 0;
+    margin-right: 35px;
+    cursor: pointer;
+    transition: transform 0.1s;
+  }
+  .item:hover {
+    transform: scale(1.1);
+    -webkit-transform: scale(1.1);
+    -moz-transform: scale(1.1);
+    transition: transform 0.1s;
+    -webkit-transition: transform 0.1s;
+    -moz-transition: transform 0.1s;
+  }
+}
+
+.point-success {
+  position: fixed;
+  width: 450px;
+  height: 136px;
+  background: rgba(229, 241, 251, 0.8);
+  padding-left: 136px;
+  z-index: 99;
+  right: 0px;
+  top: 108px;
+  right: -480px;
+  opacity: 0;
+  .close {
+    width: 30px;
+    height: 30px;
+    position: absolute;
+    right: 5px;
+    top: 0px;
+    background: url(../img/menu_close.png) center no-repeat;
+    cursor: pointer;
+  }
+
+  .pic,
+  .state_pic {
+    width: 136px;
+    height: 136px;
+    position: absolute;
+    left: 0px;
+    top: 0px;
+  }
+  .state_pic {
+    background: #42afb1 url(../img/icon_successs.png) center no-repeat;
+  }
+  .pic img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+  .info {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    -webkit-box-align: center;
+    -moz-align-items: center;
+    -webkit-align-items: center;
+    align-items: center;
+    > div {
+      width: 100%;
+      color: #1a1f25;
+      font-size: 18px;
+    }
+  }
+  p {
+    text-align: center;
+    padding: 2px 0;
+  }
+  p.message {
+    color: #42afb1;
+    font-size: 20px;
+  }
+  .transaction_view {
+    font-size: 18px;
+    color: #255ea2;
+    cursor: pointer;
+  }
+}
+.point-success.fail {
+  .state_pic {
+    background: #d63f3f url(../img/icon_fail.png) center no-repeat;
+  }
+  p.message {
+    color: #d63f3f;
+  }
+}
+
+.point-success.claim_success {
+  right: 0px;
+  opacity: 1;
+  transition: all 0.2s;
+  -moz-transition: all 0.2s;
+  -webkit-transition: all 0.2s;
+  -o-transition: all 0.2s;
+}
+
+.functionBox {
+  margin-top: 48px;
+  .claim-btn-new {
+    width: 360px;
+    height: 60px;
+    border-radius: 5px;
+    background-color: rgba(33, 19, 23, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    display: flex;
+    cursor: pointer;
+    .token-item {
+      font-size: 12px;
+    }
+    .text-item {
+      font-size: 24px;
+    }
+    .img-item {
+      display: flex;
+      align-items: center;
+      width: 24px;
+      height: auto;
+      margin-left: 12px;
+    }
+  }
+  .claim-batch-btn-new {
+    margin-top: 24px;
+  }
+}
+.select-col {
+  font-size: 16px;
+  margin-top: 24px;
+  /deep/ .el-select {
+    .el-input__inner {
+      border: 0;
+      background: transparent;
+      font-size: 16px;
+      font-family: "PoppinsBold" !important;
+      width: 90px;
+    }
+  }
+}
+
+.link-col {
+  margin-top: 24px;
+  font-weight: 700;
+  color: skyblue;
+}
+@media screen and (max-width: 1860px) {
+  .home-wraper {
+    max-width: 1780px;
+    width: auto;
+    .right {
+      max-width: 608px;
+    }
+    .timestr {
+      display: block;
+      margin-top: 24px;
+    }
+  }
+}
+
+@media screen and (max-width: 1620px) {
+  .home-wraper {
+    width: 1404px;
+    .avatar-list-box {
+      width: 380px;
+    }
+    .avator_item {
+      width: 380px;
+      height: 380px;
+      margin-bottom: 20px;
+    }
+  }
+  .text-welcome {
+    font-size: 68px;
+  }
+}
+
+@media screen and (max-width: 1520px) {
+  .home-wraper {
+    width: 1244px;
+    .avatar-list-box {
+      width: 300px;
+    }
+    .avator_item {
+      width: 300px;
+      height: 300px;
+      margin-bottom: 20px;
+    }
+
+    .avatar-list-box:first-child {
+      margin-left: 20px;
+      margin-right: 20px;
+    }
+  }
+
+  .text-welcome {
+    font-size: 58px;
+  }
+  .timestr {
+    font-size: 12px;
+  }
+}
+
+@media screen and (max-width: 1386px) {
+  .home-wraper {
+    width: 1080px;
+    .avatar-list-box {
+      width: 220px;
+    }
+    .avator_item {
+      width: 220px;
+      height: 220px;
+      margin-bottom: 20px;
+    }
+    .avatar-list-box:first-child {
+      margin-left: 0px;
+    }
+    .right {
+      margin-left: 40px;
+      .intro {
+        max-width: 100%;
+      }
+    }
+  }
+}
+
+@media screen and (max-width: 1090px) {
+  .home-wraper {
+    display: block;
+    width: 100%;
+    height: auto;
+
+    .right {
+      max-width: 608px;
+      margin-left: 0px;
+      margin-right: 0px;
+      margin: 0 auto;
+    }
+    .intro {
+      padding-top: 30px;
+    }
+    .left-pic {
+      display: none;
+    }
+    .left-mini {
+      display: block;
+      overflow: hidden;
+      .avatar-list-box {
+        width: 100%;
+        height: 240px;
+        .avator_list {
+          white-space: nowrap;
+        }
+        .avator_item {
+          display: inline-block;
+          vertical-align: top;
+          margin-right: 20px;
+        }
+      }
+    }
+    .right-avatar-list-box {
+      position: relative;
+      .avator_list {
+        position: absolute;
+        top: 0px;
+        right: 0px;
+      }
+    }
+    .link_box {
+      position: relative;
+      top: 0px;
+      margin-top: 20px;
+    }
+  }
+
+  .text-welcome {
+    padding-top: 50px;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .mc-btn-default {
+    min-width: 130px;
+    height: 50px;
+    font-size: 16px;
+    line-height: 46px;
+  }
+  .home-wraper {
+    .intro {
+      font-size: 16px;
+    }
+    .right {
+      margin: 0 30px 60px;
+      .intro {
+        padding-bottom: 25px;
+      }
+      .mc-btn-default {
+        margin-top: 20px;
+      }
+    }
+    .text-welcome .p2 {
+      padding-left: 20px;
+    }
+    .functionBox {
+      // display: flex;
+      // -webkit-display: flex;
+      // -moz-display: flex;
+      display: block;
+      .claim-btn-new {
+        width: 100%;
+        .text-item {
+          font-size: 16px;
+        }
+        .token-item{
+          font-size: 10px;
+        }
+      }
+     
+      .claim-batch-btn-new {
+        margin-top: 12px;
+        margin-left: 0px;
+      }
+    }
+  }
+  .text-welcome {
+    font-size: 36px;
+  }
+}
+.mc-btn-default {
+  cursor: pointer;
+}
+.gray {
+}
+.mc-btn-default:hover {
+  box-shadow: 0px 0px 6px rgba(0, 82, 204, 0.3);
+}
