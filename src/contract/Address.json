@@ -2,9 +2,9 @@
   "fee": "0.001",
   "chainId": 6999,
   "tokenStandard": "ERC721",
-  "MarketAddress": "0xfD2748660C74917B7e7AB31913700f4d83090D96",
-  "wdc_address": "0xE02E94D9F9f346AE91A11db1c27F5A11B16aD1C9",
-  "polydaoAddress": "0x22843012988eBe8d44EF104eb5E02157322f3C1E",
-  "proxyAddress": "0xBE81507FA2b50FBB523f30C795A9F19ed5A21670",
-  "potionAddress": "http://192.168.1.11:8081"
+  "MarketAddress": "0xc5864D81945Fcd5635E9cB3CbDE1e2A7c2642EC8",
+  "wdc_address": "0xaC5d08999371F54a4c14f73941566160ce5D6460",
+  "polydaoAddress": "0x23bAF78C4C6250A7A1D2d8336aa34f43fCd3fAda",
+  "proxyAddress": "0x81157Fa4Bd02Af09a546Efcc5cc4E42CFE4Fc7c1",
+  "potionAddress": "https://polypotion.polysmartchain.com/"
 }
