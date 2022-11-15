@@ -12,7 +12,11 @@
     "transItem": "轉移您的物品",
     "invalid": "地址或 ENS 名稱無效",
     "confirm": "確認",
-    "address": "地址"
+    "address": "地址",
+    "Migrate":"遷移",
+    "m-text1":"您還有",
+    "m-text2":"個頭像未遷移，請點擊確認遷移！"
+
   },
   "Assets": {
     "properties": "屬性",

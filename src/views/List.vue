@@ -66,6 +66,33 @@
       </div>
     </div>
 
+    <loading v-if="showLoading"></loading>
+
+    <el-dialog
+      :title="$t('Transfer.Migrate')"
+      :visible.sync="isMigrate"
+      custom-class="mad-dialog migrate-dialog"
+      :show-close="false"
+      :destroy-on-close="true"
+      :close-on-click-modal="false"
+      :close-on-press-escape="false"
+    >
+      <div class="operation-instructions">
+        {{ $t("Transfer.m-text1") }}{{ polyJetClubNumber
+        }}{{ $t("Transfer.m-text2") }}
+      </div>
+      <div slot="footer" class="dialog-footer">
+        <button
+          class="dialog-btn btn-migrate"
+          @click="MigratePolyClub()"
+          :disabled="isPending"
+        >
+          {{ isPending ? $t("Tx.pending") : $t("Transfer.confirm") }}
+          {{ step }}/2
+        </button>
+      </div>
+    </el-dialog>
+
     <el-dialog
       custom-class="mad-dialog"
       :title="$t('Transfer.transItem')"
@@ -106,7 +133,6 @@
         </button>
       </div>
     </el-dialog>
-    <loading v-if="showLoading"></loading>
   </div>
 </template>
 
@@ -117,9 +143,12 @@ import { get_potion, get_poly_potion_address } from "@/api/apiPotion";
 import madcanner_header from "@/components/header.vue";
 import { ethers } from "ethers";
 import contractAbi from "@/contract/PolyJetClub";
+import polyjetClubV2Abi from "@/contract/PolyJetClubV2";
+import PolyJetClubProxysAbi from "@/contract/PolyJetClubProxys";
 import potionAbi from "@/contract/Potion";
-
+import BigNumber from "bignumber.js";
 import loading from "@/components/loading.vue";
+import addr from "@/contract/Address.json";
 import $ from "jquery";
 export default {
   name: "list",
@@ -142,6 +171,12 @@ export default {
       contract_address: "",
       potion_address: "",
       myTokenID: {},
+      isMigrate: false,
+      polyjetclubcontract_V1: null,
+      polyjetclubcontract_V2: null,
+      isPending: false,
+      polyJetClubNumber: 0,
+      step: 0,
     };
   },
   created() {
@@ -170,6 +205,7 @@ export default {
             type = "phone";
           }
           await that.getTokenList(that.page, type);
+          await that.getPolyBalance_v1();
         });
       } catch (e) {
         console.log(e);
@@ -181,6 +217,100 @@ export default {
     loading,
   },
   methods: {
+    async OnisApprovedForAll() {
+      let that = this;
+      try {
+        const txHash = await that.polyjetclubcontract_V1.isApprovedForAll(
+          that.myAddress,
+          addr.proxyAddress
+        );
+        return txHash;
+      } catch (e) {
+        return false;
+      }
+    },
+
+    async ApproveForProxys() {
+      let that = this;
+      try {
+        const txHash = await that.polyjetclubcontract_V1.setApprovalForAll(
+          addr.proxyAddress,
+          true
+        );
+        await txHash.wait();
+        return true;
+      } catch (e) {
+        return false;
+      }
+    },
+
+    async onClaimMigration() {
+      let that = this;
+      that.polyjetclubcontract_V2 = new ethers.Contract(
+        addr.polyjetclubV2,
+        polyjetClubV2Abi,
+        that.provider.getSigner()
+      );
+      try {
+        const txtash = await that.polyjetclubcontract_V2.claimMigration();
+        await txtash.wait();
+        return true;
+      } catch (e) {
+        return false;
+      }
+    },
+
+    async getPolyBalance_v1() {
+      let that = this;
+      that.polyjetclubcontract_V1 = new ethers.Contract(
+        addr.polyjetclubV1,
+        contractAbi.abi,
+        that.provider.getSigner()
+      );
+      const polybalancev1 = await that.polyjetclubcontract_V1.balanceOf(
+        that.myAddress
+      );
+      that.polyJetClubNumber = new BigNumber(polybalancev1).toString();
+      if (new BigNumber(polybalancev1).isGreaterThan(0)) {
+        that.isMigrate = true;
+      } else {
+        that.isMigrate = false;
+      }
+    },
+    async MigratePolyClub() {
+      let that = this;
+
+      that.isPending = true;
+      that.step = 0;
+      const isApprove = await that.OnisApprovedForAll();
+      if (!isApprove) {
+        const approveTxh = await that.ApproveForProxys();
+        if (approveTxh) {
+          that.step = that.step + 1;
+        } else {
+          that.isPending = false;
+        }
+      } else {
+        that.step = that.step + 1;
+      }
+
+      const claimTxh = await that.onClaimMigration();
+      if (claimTxh) {
+        that.isMigrate = false;
+        that.step = that.step + 1;
+        that.isPending = false;
+        that.page = 1;
+        let w = $(window).width();
+        let type;
+        if (w < 768) {
+          type = "phone";
+        }
+        await that.getTokenList(that.page, type);
+      } else {
+        that.isPending = false;
+      }
+    },
+
     handleCurrentChange(val) {
       let that = this;
       that.changeListNew(val - 1);
@@ -469,7 +599,7 @@ export default {
   },
 };
 </script>
-<style scoped lang="less" scoped>
+<style scoped lang="less">
 @import "../assets/css/list.less";
 </style>
 <style scoped lang="less">

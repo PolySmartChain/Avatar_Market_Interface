@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "axios": "^0.21.4",
+    "bignumber.js": "^9.1.0",
     "compression-webpack-plugin": "1.1.12",
     "core-js": "^3.6.5",
     "ethers": "^4.0.47",
@@ -53,7 +54,9 @@
     "parserOptions": {
       "parser": "babel-eslint"
     },
-    "rules": {}
+    "rules": {
+      "no-unused-vars":"off"
+    }
   },
   "browserslist": [
     "> 1%",

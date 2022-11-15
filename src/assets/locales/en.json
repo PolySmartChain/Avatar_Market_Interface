@@ -12,7 +12,10 @@
     "transItem": "Transfer your item",
     "invalid": "Invalid address or ENS name",
     "confirm": "Confirm",
-    "address": "Address"
+    "address": "Address",
+    "Migrate":"Migrate",
+    "m-text1":"You still have ",
+    "m-text2":" avatars that have not been migrated, Please click confirm to migrate!"
   },
   "Assets": {
     "properties": "Properties",
