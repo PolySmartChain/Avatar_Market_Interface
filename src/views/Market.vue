@@ -130,7 +130,7 @@ export default {
   data() {
     return {
       token: token.erc20,
-      polyject_adderss:"",
+      polyject_adderss: "",
       options2: [
         {
           value2: "1",
@@ -182,7 +182,7 @@ export default {
       s_id: "",
       showLoading: false,
       message: "waiting",
-      page:1,
+      page: 1,
       limit: 28,
       total: 0,
       disabled: true,
@@ -215,7 +215,7 @@ export default {
         console.log(e);
       }
     }
-    await that.see_poly_jet_address()
+    await that.see_poly_jet_address();
     that.getNftList();
   },
   components: {
@@ -224,20 +224,25 @@ export default {
   },
   methods: {
     // address, page, per_page, order_by, token_id, nft_addr
-    async getNftList(){
+    async getNftList() {
       let that = this;
-      let res = await getList("",that.page,that.limit,"2","",that.polyject_adderss);
-      that.list = res.data
+      let res = await getList(
+        "",
+        that.page,
+        that.limit,
+        "2",
+        "",
+        that.polyject_adderss
+      );
+      that.list = res.data;
     },
- 
 
-    async see_poly_jet_address(){
+    async see_poly_jet_address() {
       let that = this;
       let res = await get_poly_jet_address();
       console.log(res);
       that.polyject_adderss = res.data;
     },
-
 
     toBigNumber(v) {
       return ethers.utils.bigNumberify(v);
@@ -258,7 +263,6 @@ export default {
         },
       });
     },
- 
 
     searchById(e) {
       let that = this;
