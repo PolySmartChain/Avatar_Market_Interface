@@ -53,6 +53,11 @@ const routes = [
     name: "market",
     component: () => import("../views/Market.vue"),
   },
+  {
+    path: "/marketin",
+    name: "marketin",
+    component: () => import("../views/MarketIn.vue"),
+  },
 ];
 
 const router = new VueRouter({

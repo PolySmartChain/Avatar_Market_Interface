@@ -1,7 +1,7 @@
 <template>
   <div
     class="wrap"
-    v-infinite-scroll="getWholeList"
+    v-infinite-scroll="getNftList"
     style="overflow-y: auto; height: 100%"
     infinite-immediate-check="true"
     infinite-scroll-disabled="disabled"
@@ -45,8 +45,8 @@
                 @change="
                   list.length = 0;
                   s_id = '';
-                  page = -1;
-                  getWholeList();
+                  page = 1;
+                  getNftList();
                 "
               >
                 <el-option
@@ -122,31 +122,15 @@
 import madcanner_header from "@/components/header.vue";
 import loading from "@/components/loading.vue";
 import { getList } from "@/api/apiMarket";
+import { get_poly_jet_address } from "@/api/api";
 import { ethers } from "ethers";
 import token from "@/contract/token";
 export default {
   name: "market",
   data() {
     return {
-      // options: [
-      //   {
-      //     value: "2",
-      //     label: "Date：Oldest",
-      //   },
-      //   {
-      //     value: "3",
-      //     label: "Date：Newest",
-      //   },
-      //   {
-      //     value: "4",
-      //     label: "Price：Highest",
-      //   },
-      //   {
-      //     value: "5",
-      //     label: "Price：Lowest",
-      //   },
-      // ],
       token: token.erc20,
+      polyject_adderss:"",
       options2: [
         {
           value2: "1",
@@ -198,7 +182,7 @@ export default {
       s_id: "",
       showLoading: false,
       message: "waiting",
-      page: -1,
+      page:1,
       limit: 28,
       total: 0,
       disabled: true,
@@ -215,7 +199,6 @@ export default {
   created() {},
   async mounted() {
     let that = this;
-    // that.showLoading = true;
 
     if (window.ethereum) {
       try {
@@ -232,85 +215,29 @@ export default {
         console.log(e);
       }
     }
-
-    that.getWholeList();
-    // that.getLowest();
+    await that.see_poly_jet_address()
+    that.getNftList();
   },
   components: {
     madcanner_header,
     loading,
   },
   methods: {
-    async getLowest() {
-      // let that = this;
-      // let res = await get_the_lowest_price();
-      // that.min_price = res.data;
-    },
-
-    async getWholeList() {
+    // address, page, per_page, order_by, token_id, nft_addr
+    async getNftList(){
       let that = this;
-      let args = [];
-      //order_by_price
-
-      // is_all, order_by, is_desc, token_id, pay_kind
-
-      // if (that.value == "2") {
-      //   args = [0, "1", "1", "", ""];
-      // } else if (that.value == "3") {
-      //   args = [0, "1", "0", "", ""];
-      // } else if (that.value == "4") {
-      //   args = [0, "2", "0", "", "0"];
-      // } else if (that.value == "5") {
-      //   args = [0, "2", "1", "", "0"];
-      // } else if (that.value == "6") {
-      //   args = [0, "2", "0", "", "1"];
-      // } else if (that.value == "7") {
-      //   args = [0, "2", "1", "", "1"];
-      // } else if (that.value == "") {
-      //   args = [0, "", "", "", ""];
-      // }
-
-      if (that.value == "2") {
-        args = [0, "1", "1", "", ""];
-      } else if (that.value == "3") {
-        args = [0, "1", "0", "", ""];
-      } else if (that.value == "") {
-        args = [0, "1", "0", "", ""];
-      } else {
-        if (that.value % 2 == 0) {
-          args = [0, "2", "0", "", (that.value - 4) / 2];
-        } else {
-          args = [0, "2", "1", "", (that.value - 5) / 2];
-        }
-      }
-      that.getNftList(...args);
+      let res = await getList("",that.page,that.limit,"2","",that.polyject_adderss);
+      that.list = res.data
     },
+ 
 
-    async getWholeListNew() {
+    async see_poly_jet_address(){
       let that = this;
-      let args = [];
-
-      if (that.value == "2") {
-        args = [0, "1", "1", ""];
-      } else if (that.value == "3") {
-        args = [0, "1", "0", ""];
-      } else if (that.value == "4") {
-        args = [0, "2", "0", ""];
-      } else if (that.value == "5") {
-        args = [0, "2", "1", ""];
-      }
-      that.getNftList(...args);
-      // is_all, order_by, is_desc, token_id
-      // if (that.value == "2") {
-      //   that.getNftList(0, "1", "1", "");
-      // } else if (that.value == "3") {
-      //   that.getNftList(0, "1", "0", "");
-      // } else if (that.value == "4") {
-      //   that.getNftList(0, "2", "0", "");
-      // } else if (that.value == "5") {
-      //   that.getNftList(0, "2", "1", "");
-      // }
+      let res = await get_poly_jet_address();
+      console.log(res);
+      that.polyject_adderss = res.data;
     },
+
 
     toBigNumber(v) {
       return ethers.utils.bigNumberify(v);
@@ -331,65 +258,8 @@ export default {
         },
       });
     },
-    async getNftList(is_all, order_by, is_desc, token_id, pay_kind) {
-      let that = this;
-      // that.showLoading = true;
-      // address,
-      // page,
-      // per_page,
-      // is_all,
-      // order_by,
-      // is_desc,
-      // token_id
  
-      if (!that.disabledFlag) {
-        that.disabledFlag = true;
-        let res = await getList(
-          that.myAddress,
-          that.page + 1,
-          that.limit,
-          is_all,
-          order_by,
-          is_desc,
-          token_id,
-          pay_kind
-        );
-        if (res.code == 200) {
-          that.list = that.list.concat(res.data.content);
-          that.total = res.data.content.length;
-          that.disabled = res.data.last;
-          that.page += 1;
-          that.list.forEach((item) => {
-            token.erc20.forEach((erc) => {
-              if (item.pay_kind == erc.value) {
-                item.price_img = require(`../assets/img/market/icon/${erc.img}`);
-              }
-            });
-          });
-          that.disabledFlag = false;
-        }
-      }
-    },
-    async postLikeOrNoLike(item) {
-      let that = this;
-      if (!window.ethereum || that.myAddress == "") {
-        return;
-      }
-      let res = {};
-      var obj = {
-        address: that.myAddress.toLowerCase(),
-        token_id: item.token_id,
-      };
-      if (item.if_like == 0) {
-        item.if_like = 1;
-        item.like_count += 1;
-        res = await addTokenLike(obj);
-      } else {
-        item.if_like = 0;
-        item.like_count -= 1;
-        res = await deleteTokenLike(obj);
-      }
-    },
+
     searchById(e) {
       let that = this;
       that.showLoading = true;
@@ -531,34 +401,6 @@ export default {
         };
         arr.push(obj, obj1);
       });
-
-      // return [
-      //   {
-      //     value: "2",
-      //     // label: "Date：Oldest",
-      //     label: that.$i18n.t("dateold"),
-      //   },
-      //   {
-      //     value: "3",
-      //     label: that.$i18n.t("datenew"),
-      //   },
-      //   {
-      //     value: "4",
-      //     label: "PSC " + that.$i18n.t("pricehigh"),
-      //   },
-      //   {
-      //     value: "5",
-      //     label: "PSC " + that.$i18n.t("pricelow"),
-      //   },
-      //   {
-      //     value: "6",
-      //     label: "WDC " + that.$i18n.t("pricehigh"),
-      //   },
-      //   {
-      //     value: "7",
-      //     label: "WDC " + that.$i18n.t("pricelow"),
-      //   },
-      // ];
       return arr;
     },
   },

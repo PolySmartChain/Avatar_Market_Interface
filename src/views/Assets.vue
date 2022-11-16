@@ -367,9 +367,8 @@ import { get_avatar_detail, get_poly_jet_address } from "@/api/api";
 import {
   on_deposit,
   get_gmd_by_token_id,
-  getList,
-  on_cancel,
   get_token_on_deposit,
+  sell_status,
 } from "@/api/apiMarket";
 import { ethers } from "ethers";
 import contractAddress from "@/contract/Address";
@@ -408,7 +407,6 @@ export default {
       contract_link: "",
       nftPrice: "",
       wallet_timmer: null,
-
       tokenStandard: process.env.VUE_APP_TOKEN_STANDARD,
       sure_transfer_dialogVisible: false,
       transferToAddress: "",
@@ -445,13 +443,6 @@ export default {
   async mounted() {
     let that = this;
     that.p_lang_locale = that.$i18n.locale;
-
-    // that.chainId = process.env.VUE_APP_CHAINID
-    //   ? process.env.VUE_APP_CHAINID
-    //   : that.chainId;
-    // that.base_url = contractAddress.baseURL;
-    // that.MetaParticleAddress = contractAddress.MetaParticleAddress;
-
     that.$route.params.type == undefined
       ? (that.type = sessionStorage.getItem("myType"))
       : (that.type = that.$route.params.type);
@@ -480,57 +471,24 @@ export default {
     }
     window.ethereum.enable().then(async (res) => {
       that.myAddress = res[0];
-      // if (that.type == "mine") await that.getNftList(0, that.myTokenID);
-      await that.ifSold();
+      await that.get_pre();
+      await that.getFee();
+      await that.seeSellStatus();
     });
     await that.seeIfPolyDao(that.myTokenID);
-    await that.getFee();
-    await that.get_pre();
     await that.getNftInfo();
-    await that.getNftList(0, that.myTokenID);
+    // await that.getNftList(that.myTokenID);
     await that.getGmd();
   },
   methods: {
-    async getNftList(is_all, token_id) {
+    async seeSellStatus() {
       let that = this;
-      // that.showLoading = true;
-      // address,
-      // page,
-      // per_page,
-      // is_all,
-      // order_by,
-      // is_desc,
-      // token_id
-      let res = await getList(
+      let res = await sell_status(
         that.myAddress,
-        that.page + 1,
-        that.limit,
-        is_all,
-        "",
-        "",
-        token_id,
-        ""
+        that.contract_address,
+        that.myTokenID
       );
-
-      if (res.code == 200) {
-        that.list = that.list.concat(res.data.content);
-        that.total = res.data.content.length;
-        that.disabled = res.data.last;
-
-        if (that.list.length != 0) {
-          that.myDate = that.list[0].sj_time;
-          that.myPrice = that.list[0].price;
-          that.myOwner = that.list[0].owner;
-          that.sj_timestamp = that.list[0].sj_timestamp;
-          that.signature = that.list[0].signature;
-          token.erc20.forEach((erc) => {
-            if (erc.value == that.list[0].pay_kind) {
-              that.price_img = require(`../assets/img/market/icon/${erc.img}`);
-              that.price_name = erc.tokenName;
-            }
-          });
-        }
-      }
+      that.isSold = res.data;
     },
     async get_pre() {
       let that = this;
@@ -751,14 +709,30 @@ export default {
       let n = Math.floor(new Date().valueOf() / 1000);
       let m = await that.message2();
 
+      let contractMarket = that.getConstractMarket();
+
+      let nonce = await contractMarket.nonces(that.myAddress);
+
       m.primaryType = "Buy";
+      // { name: "from", type: "address" },
+      //       { name: "nft", type: "address" },
+      //       { name: "tokenId", type: "uint256" },
+      //       { name: "amount", type: "uint256" },
+      //       { name: "token", type: "address" },
+      //       { name: "price", type: "uint256" },
+      //       { name: "nonce", type: "uint256" },
+      // { name: "timestamp", type: "uint256" },
       m.message = {
+        from: that.myAddress,
+        nft: that.contract_address,
         tokenId: that.myTokenID,
+        amount: "",
+        token: "",
         price: ethers.utils
           .parseUnits(that.nftPrice, token.erc20[that.value].decimal)
           .toString(),
+        nonce: nonce.toString(),
         timestamp: n,
-        payKind: that.value,
       };
 
       m.from = that.myAddress;
@@ -780,13 +754,17 @@ export default {
 
       var obj = {
         owner: that.myAddress,
-        token_id: that.myTokenID,
         pay_kind: that.value,
         price: ethers.utils
           .parseUnits(that.nftPrice, token.erc20[that.value].decimal)
           .toString(),
-        sj_timestamp: n,
         signature: sign,
+        sj_timestamp: n,
+        token_id: that.myTokenID,
+        nft_address: that.contract_address,
+        token: "",
+        amount: "",
+        nonce: nonce.toString(),
       };
 
       let res = await on_deposit(obj).then((res) => {
@@ -840,13 +818,6 @@ export default {
         sj_timestamp: that.sj_timestamp,
         signature: that.signature,
       };
-      // var obj =  {}
-      // let iscanel = await on_cancel(obj);
-
-      // setTimeout(() => {
-      //   that.showLoading = false;
-      //   that.$router.replace("/mine");
-      // }, 1500);
 
       that.timer = setInterval(async () => {
         let res = await get_token_on_deposit([that.myTokenID]);
@@ -888,9 +859,13 @@ export default {
             { name: "verifyingContract", type: "address" },
           ],
           Buy: [
+            { name: "from", type: "address" },
+            { name: "nft", type: "address" },
             { name: "tokenId", type: "uint256" },
+            { name: "amount", type: "uint256" },
+            { name: "token", type: "address" },
             { name: "price", type: "uint256" },
-            { name: "payKind", type: "uint256" },
+            { name: "nonce", type: "uint256" },
             { name: "timestamp", type: "uint256" },
           ],
         },
@@ -913,36 +888,6 @@ export default {
           }
         });
       });
-    },
-    async ifSold() {
-      let that = this;
-      // address,
-      // page,
-      // per_page,
-      // is_all,
-      // order_by,
-      // is_desc,
-      // token_id
-      let res = await getList(
-        that.myAddress,
-        0,
-        10,
-        0,
-        "",
-        "",
-        that.myTokenID,
-        ""
-      );
-
-      if (res.code == 200) {
-        if (res.data.content.length != 0) {
-          that.isSold = true;
-          that.myPrice = res.data.content[0].price.toString();
-          that.payKind = res.data.content[0].pay_kind;
-        } else {
-          that.isSold = false;
-        }
-      }
     },
     formatNum(num) {
       if (!/^(-|\+)?(\d+)(\.\d+)?$/.test(num)) {
@@ -1019,7 +964,7 @@ export default {
     async getFee() {
       let that = this;
       let contract = await that.getConstractMarket();
-      let feestr = await contract._fee();
+      let feestr = await contract.fee();
 
       that.fee = Number(feestr.toString()) / 100;
     },

@@ -307,7 +307,6 @@ import {
   getList,
   get_gmd_by_token_id,
   get_token_on_deposit,
-  on_cancel,
 } from "@/api/apiMarket";
 import { ethers } from "ethers";
 import contractAddress from "@/contract/Address";
@@ -883,14 +882,6 @@ export default {
           sj_timestamp: that.sj_timestamp,
           signature: that.signature,
         };
-        // var obj = {};
-
-        // let iscanel = await on_cancel(obj);
-
-        // setTimeout(() => {
-        //   that.showLoading = false;
-        //   that.$router.replace("/market");
-        // }, 1500);
 
         that.timer = setInterval(async () => {
           let res = await get_token_on_deposit([that.myTokenID]);
