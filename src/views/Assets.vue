@@ -367,8 +367,8 @@ import { get_avatar_detail, get_poly_jet_address } from "@/api/api";
 import {
   on_deposit,
   get_gmd_by_token_id,
-  get_token_on_deposit,
   sell_status,
+  getList,
 } from "@/api/apiMarket";
 import { ethers } from "ethers";
 import contractAddress from "@/contract/Address";
@@ -431,6 +431,7 @@ export default {
       token: token.erc20,
       fee: "",
       ifpolyDao: true,
+      wdc_address: contractAddress.wdc_address,
     };
   },
   components: {
@@ -477,10 +478,28 @@ export default {
     });
     await that.seeIfPolyDao(that.myTokenID);
     await that.getNftInfo();
+    await that.getNftList();
     // await that.getNftList(that.myTokenID);
     await that.getGmd();
   },
   methods: {
+    async getNftList() {
+      let that = this;
+      let res = await getList(
+        "",
+        1,
+        1,
+        "2",
+        that.myTokenID,
+        that.contract_address
+      );
+      if (res.code == 200 && res.data.length > 0) {
+        console.log(res.data);
+        that.signature = res.data[0].signature;
+        that.sj_timestamp = res.data[0].sj_timestamp;
+        that.myPrice = res.data[0].price;
+      }
+    },
     async seeSellStatus() {
       let that = this;
       let res = await sell_status(
@@ -534,7 +553,7 @@ export default {
           return;
         }
 
-        that.set_location_data(res.hash, "Transfer", "轉賬", "");
+        that.set_location_data(res.hash, "Transfer", "轉賬", "", "");
         await res.wait();
         that.sure_transfer_dialogVisible = false;
         that.showLoading = false;
@@ -565,7 +584,7 @@ export default {
       }
     },
 
-    set_location_data(hash, method, methodcn, data) {
+    set_location_data(hash, method, methodcn, data, nft) {
       var txArr = JSON.parse(localStorage.getItem("txArr"));
       if (!txArr) {
         txArr = [];
@@ -576,6 +595,7 @@ export default {
         hash: hash,
         time: this.getNowFormatDate(),
         data: data,
+        nft: nft,
       };
       txArr.push(obj);
       localStorage.setItem("txArr", JSON.stringify(txArr));
@@ -701,7 +721,7 @@ export default {
           });
         }
 
-        that.set_location_data(approveRes.hash, "Approve", "批准", "");
+        that.set_location_data(approveRes.hash, "Approve", "批准", "", "");
         await approveRes.wait();
       }
       that.nftPrice = Number(that.nftPrice).toString().trim();
@@ -714,6 +734,7 @@ export default {
       let nonce = await contractMarket.nonces(that.myAddress);
 
       m.primaryType = "Buy";
+      // token : psc or wdc
       // { name: "from", type: "address" },
       //       { name: "nft", type: "address" },
       //       { name: "tokenId", type: "uint256" },
@@ -726,8 +747,11 @@ export default {
         from: that.myAddress,
         nft: that.contract_address,
         tokenId: that.myTokenID,
-        amount: "",
-        token: "",
+        amount: 1,
+        token:
+          that.value == "0"
+            ? "0x0000000000000000000000000000000000000000"
+            : that.wdc_address,
         price: ethers.utils
           .parseUnits(that.nftPrice, token.erc20[that.value].decimal)
           .toString(),
@@ -762,8 +786,8 @@ export default {
         sj_timestamp: n,
         token_id: that.myTokenID,
         nft_address: that.contract_address,
-        token: "",
-        amount: "",
+        token: that.value == "0" ? "" : that.wdc_address,
+        amount: 1,
         nonce: nonce.toString(),
       };
 
@@ -784,20 +808,28 @@ export default {
     async cancelListing() {
       let that = this;
       let contract = that.getConstractMarket();
+      let nonce = await contract.nonces(that.myAddress);
+      console.log("nonce", nonce.toString());
+
+      let o = {
+        from: that.myAddress,
+        nft: that.contract_address,
+        tokenId: that.myTokenID,
+        amount: 1,
+        token: "0x0000000000000000000000000000000000000000",
+        price: that.myPrice.toString(),
+        nonce: nonce.toString(),
+        timestamp: that.sj_timestamp,
+      };
       that.showLoading = true;
 
-      let res = await contract
-        .cancelListing(
-          that.myTokenID,
-          that.myPrice.toString(),
-          that.payKind,
-          that.sj_timestamp,
-          that.signature
-        )
-        .catch((err) => {
-          console.log(err);
-          return -1;
-        });
+      let arr = Object.values(o).map((item) => item);
+      console.log(arr);
+
+      let res = await contract.cancelList(o, that.signature).catch((err) => {
+        console.log(err);
+        return -1;
+      });
 
       if (res == -1) {
         that.showLoading = false;
@@ -809,19 +841,25 @@ export default {
           isLink: true,
         });
       }
-      that.set_location_data(res.hash, "Cancellisting", "下架", that.myTokenID);
+      that.set_location_data(
+        res.hash,
+        "Cancellisting",
+        "下架",
+        that.myTokenID,
+        that.contract_address
+      );
       await res.wait();
-      var obj = {
-        owner: that.myAddress,
-        token_id: that.myTokenID,
-        price: ethers.utils.parseEther(that.myPrice).toString(),
-        sj_timestamp: that.sj_timestamp,
-        signature: that.signature,
-      };
+
+      // that.showLoading = false;
+      // that.$router.replace("/mine");
 
       that.timer = setInterval(async () => {
-        let res = await get_token_on_deposit([that.myTokenID]);
-        if (res.data.length == 0) {
+        let res = await sell_status(
+          that.myAddress,
+          that.contract_address,
+          that.myTokenID
+        );
+        if (!res.data) {
           clearInterval(that.timer);
           that.showLoading = false;
           that.$router.replace("/mine");
@@ -836,6 +874,7 @@ export default {
         marketAbi.abi,
         that.provider.getSigner()
       );
+      console.log(that.provider.getSigner());
 
       return constract;
     },
@@ -873,14 +912,14 @@ export default {
     },
     async getGmd() {
       let that = this;
-      let gmd_per_page = 10000;
-      let gmd_page = 0;
+
       let result = await get_gmd_by_token_id(
+        1,
+        1000,
         that.myTokenID,
-        gmd_per_page,
-        gmd_page
+        that.contract_address
       );
-      that.gmd_list = result.data.content;
+      that.gmd_list = result.data;
       that.gmd_list.forEach((item) => {
         token.erc20.forEach((erc) => {
           if (erc.value == item.pay_kind) {

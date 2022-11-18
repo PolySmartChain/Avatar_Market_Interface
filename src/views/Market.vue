@@ -131,52 +131,8 @@ export default {
     return {
       token: token.erc20,
       polyject_adderss: "",
-      options2: [
-        {
-          value2: "1",
-          label2: "All",
-        },
-        {
-          value2: "2",
-          label2: "Canner",
-        },
-
-        {
-          value2: "3",
-          label2: "Background",
-        },
-        {
-          value2: "4",
-          label2: "Eyes",
-        },
-        {
-          value2: "5",
-          label2: "Mouth",
-        },
-        {
-          value2: "6",
-          label2: "Body",
-        },
-        {
-          value2: "7",
-          label2: "Top",
-        },
-        {
-          value2: "8",
-          label2: "Straw",
-        },
-        {
-          value2: "9",
-          label2: "Gesture",
-        },
-        {
-          value2: "10",
-          label2: "Template",
-        },
-      ],
       value: "",
       value2: "1",
-      label2: "All",
       list: [],
       myAddress: "",
       s_id: "",
@@ -223,24 +179,32 @@ export default {
     loading,
   },
   methods: {
-    // address, page, per_page, order_by, token_id, nft_addr
     async getNftList() {
       let that = this;
       let res = await getList(
         "",
         that.page,
         that.limit,
-        "2",
+        Number(that.value) - 1,
         "",
         that.polyject_adderss
       );
-      that.list = res.data;
+      if (res.code == 200) {
+        that.list = that.list.concat(res.data);
+        that.page += 1;
+        that.list.forEach((item) => {
+          token.erc20.forEach((erc) => {
+            if (item.pay_kind == erc.value) {
+              item.price_img = require(`../assets/img/market/icon/${erc.img}`);
+            }
+          });
+        });
+      }
     },
 
     async see_poly_jet_address() {
       let that = this;
       let res = await get_poly_jet_address();
-      console.log(res);
       that.polyject_adderss = res.data;
     },
 
@@ -256,10 +220,11 @@ export default {
     },
     getAssets(item) {
       let that = this;
+
       that.$router.push({
         name: "assetsmarket",
         params: {
-          tokenId: item.token_id,
+          nftInMarket: JSON.stringify(item),
         },
       });
     },
@@ -267,15 +232,23 @@ export default {
     searchById(e) {
       let that = this;
       that.showLoading = true;
-      that.value2 = "1";
       that.value = "";
       var keyCode = window.event ? e.keyCode : e.which;
 
       if (keyCode == 13) {
         that.list.length = 0;
         // is_all, order_by, is_desc, token_id, part
+
         that.page = -1;
-        that.getNftList(0, 0, 0, that.formateSpe(that.s_id), "");
+        console.log(that.s_id);
+        that.getNftList(
+          "",
+          that.page,
+          that.limit,
+          Number(that.value) - 1,
+          that.s_id,
+          that.polyject_adderss
+        );
         that.showLoading = false;
       }
     },
@@ -384,7 +357,6 @@ export default {
       let arr = [
         {
           value: "2",
-          // label: "Date：Oldest",
           label: that.$i18n.t("dateold"),
         },
         {

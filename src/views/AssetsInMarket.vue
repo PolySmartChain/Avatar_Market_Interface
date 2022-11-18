@@ -17,7 +17,7 @@
         </div>
 
         <div class="right-info">
-          <p class="p-tokenid">#{{ myTokenID }}</p>
+          <p class="p-tokenid">#{{ nftInMarket.token_id }}</p>
 
           <p class="p-date">{{ $t("Tx.date") }}:{{ myDate }}</p>
           <p class="p-owner">{{ $t("owner") }}:{{ str_Address(myOwner) }}</p>
@@ -117,7 +117,7 @@
             </div>
             <div class="i-detail-col">
               <div class="s-label">{{ $t("Assets.token") }}</div>
-              <div class="s-text">{{ myTokenID }}</div>
+              <div class="s-text">{{ nftInMarket.token_id }}</div>
             </div>
             <div class="i-detail-col">
               <div class="s-label">{{ $t("Assets.stand") }}</div>
@@ -303,10 +303,9 @@
 import { get_avatar_detail, get_poly_jet_address } from "@/api/api";
 import contractAbiERC from "@/contract/erc20";
 import {
-  on_deposit,
-  getList,
+  sell_status,
   get_gmd_by_token_id,
-  get_token_on_deposit,
+  getList,
 } from "@/api/apiMarket";
 import { ethers } from "ethers";
 import contractAddress from "@/contract/Address";
@@ -336,14 +335,12 @@ export default {
       isReplace: false,
       myAddress: "",
       provider: {},
-      myTokenID: "",
       assetsInfo: { img: "" },
       showLoading: false,
       disabled: true,
       chainId: 6999,
       chain: "",
       contract_link: "",
-      nftPrice: "",
       wallet_timmer: null,
       tokenStandard: process.env.VUE_APP_TOKEN_STANDARD,
       sure_transfer_dialogVisible: false,
@@ -368,6 +365,9 @@ export default {
       sj_timestamp: "",
       signature: "",
       ifpolyDao: true,
+      polyject_adderss: "",
+      nft: "",
+      nftInMarket: {},
     };
   },
   components: {
@@ -381,22 +381,20 @@ export default {
     let that = this;
     that.p_lang_locale = that.$i18n.locale;
 
-    sessionStorage.getItem("myType")
-      ? (that.type = sessionStorage.getItem("myType"))
-      : (that.type = that.$route.params.type);
-    sessionStorage.setItem("myType", that.type);
-
-    if (!that.$route.params.tokenId) {
-      that.myTokenID = sessionStorage.getItem("myTokenID");
+    if (!that.$route.params.nftInMarket) {
+      that.nftInMarket = JSON.parse(sessionStorage.getItem("nftInMarket"));
     } else {
-      that.myTokenID = that.$route.params.tokenId
-        ? that.$route.params.tokenId
+      that.nftInMarket = that.$route.params.nftInMarket
+        ? JSON.parse(that.$route.params.nftInMarket)
         : "";
-      sessionStorage.setItem("myTokenID", that.myTokenID);
+      sessionStorage.setItem("nftInMarket", JSON.stringify(that.nftInMarket));
     }
+
     if (window.ethereum) {
       try {
         that.provider = new ethers.providers.Web3Provider(window.ethereum);
+        await that.get_pre();
+        await that.seeSellStatus();
       } catch (e) {
         console.log(e);
       }
@@ -407,11 +405,9 @@ export default {
         that.contract_link = chains[i].link;
       }
     }
-    await that.seeIfPolyDao(that.myTokenID);
-    await that.getNftList(0, that.myTokenID);
-    await that.get_pre();
+    await that.seeIfPolyDao(that.nftInMarket.token_id);
     await that.getNftInfo();
-
+    await that.getNftList();
     await that.getGmd();
 
     if (window.ethereum) {
@@ -434,30 +430,29 @@ export default {
     }
   },
   methods: {
-    async getNftList(is_all, token_id) {
+    async seeSellStatus() {
       let that = this;
-      // that.showLoading = true;
-      // address,
-      // page,
-      // per_page,
-      // is_all,
-      // order_by,
-      // is_desc,
-      // token_id
-      let res = await getList(
+      let res = await sell_status(
         that.myAddress,
-        that.page + 1,
-        that.limit,
-        is_all,
-        "",
-        "",
-        token_id,
-        ""
+        that.contract_address,
+        that.nftInMarket.token_id
       );
+      that.isSold = res.data;
+    },
+
+    async getNftList() {
+      let that = this;
+      let res = await getList(
+        "",
+        that.page,
+        that.limit,
+        "2",
+        that.nftInMarket.token_id,
+        that.contract_address
+      );
+
       if (res.code == 200) {
-        that.list = that.list.concat(res.data.content);
-        that.total = res.data.content.length;
-        that.disabled = res.data.last;
+        that.list = that.list.concat(res.data);
 
         // that.page += 1;
         that.myDate = that.list[0].sj_time;
@@ -482,11 +477,10 @@ export default {
 
     async getNftInfo() {
       let that = this;
-      let res = await get_avatar_detail(that.myTokenID);
+      let res = await get_avatar_detail(that.nftInMarket.token_id);
 
       if (res.code == 200) {
         that.myImg = res.data.img;
-
         that.properties = res.data.parts;
       }
     },
@@ -500,7 +494,7 @@ export default {
         let address = that.transferToAddress.replace(/\s*/g, "");
 
         let res = await constract
-          .transferFrom(that.myAddress, address, that.myTokenID)
+          .transferFrom(that.myAddress, address, that.nftInMarket.token_id)
           .catch((err) => {
             return -1;
           });
@@ -518,7 +512,7 @@ export default {
           return;
         }
 
-        that.set_location_data(res.hash, "Transfer", "轉賬", "");
+        that.set_location_data(res.hash, "Transfer", "轉賬", "", "");
         await res.wait();
         that.sure_transfer_dialogVisible = false;
         that.showLoading = false;
@@ -549,7 +543,7 @@ export default {
       }
     },
 
-    set_location_data(hash, method, methodcn, data) {
+    set_location_data(hash, method, methodcn, data, nft) {
       var txArr = JSON.parse(localStorage.getItem("txArr"));
       if (!txArr) {
         txArr = [];
@@ -560,6 +554,7 @@ export default {
         hash: hash,
         time: this.getNowFormatDate(),
         data: data,
+        nft: nft,
       };
       txArr.push(obj);
       localStorage.setItem("txArr", JSON.stringify(txArr));
@@ -616,146 +611,7 @@ export default {
       );
       return constract;
     },
-    seePrice() {
-      let that = this;
 
-      if (that.nftPrice.charAt(0) == " ") {
-        that.nftPrice = "";
-        return;
-      }
-      if (isNaN(that.nftPrice)) {
-        that.nftPrice = "";
-        return;
-      }
-      var ina = that.nftPrice.indexOf(".");
-      var fr = that.nftPrice.slice(0, ina);
-      var ba = that.nftPrice.slice(ina + 1);
-
-      if (fr.charAt(0) == "0" && fr.charAt(1) == "0") {
-        that.nftPrice = "";
-        return;
-      }
-      if (that.nftPrice.charAt(1) != "." && that.nftPrice.length > 1) {
-        if (fr.charAt(0) == "0") {
-          that.nftPrice = "";
-          return;
-        }
-      }
-      if (fr.length > 10 || ba.length > 10) {
-        that.nftPrice = "";
-        return;
-      }
-    },
-    async signTX() {
-      let that = this;
-
-      that.sure_sell_dialogVisible = false;
-      that.showLoading = true;
-      let constractHead = that.getConstract();
-      let allowance = await constractHead.isApprovedForAll(
-        that.myAddress,
-        contractAddress.MarketAddress
-      );
-
-      if (allowance == false) {
-        let approveRes = await constractHead
-          .setApprovalForAll(contractAddress.MarketAddress, true)
-          .catch((err) => {
-            return -1;
-          });
-
-        if (approveRes == -1) {
-          that.sure_sell_dialogVisible = false;
-          that.showLoading = false;
-          return this.$message({
-            message: that.$i18n.t("Trans.fail"),
-            type: "error",
-            duration: 5000,
-            message_obj: {},
-            isLink: true,
-          });
-        }
-
-        that.set_location_data(approveRes.hash, "Approve", "批准", "");
-        await approveRes.wait();
-      }
-      that.nftPrice = Number(that.nftPrice).toString().trim();
-      that.showLoading = true;
-      let n = Math.floor(new Date().valueOf() / 1000);
-      let m = await that.message2();
-      m.primaryType = "Buy";
-      m.message = {
-        tokenId: that.myTokenID,
-        price: ethers.utils.parseEther(that.nftPrice).toString(),
-        timestamp: n,
-      };
-
-      m.from = that.myAddress;
-      const from = that.myAddress;
-      const sign = await ethereum
-        .request({
-          method: "eth_signTypedData_v4",
-          params: [from, JSON.stringify(m)],
-        })
-        .catch((e) => {
-          return -1;
-        });
-
-      if (sign == -1) {
-        that.showLoading = false;
-        return;
-      }
-
-      var obj = {
-        owner: that.myAddress,
-        token_id: that.myTokenID,
-        price: ethers.utils.parseEther(that.nftPrice).toString(),
-        sj_timestamp: n,
-        signature: sign,
-        pay_kind: that.payKind,
-      };
-
-      let res = await on_deposit(obj).then((res) => {
-        if (res.code == 500) {
-          return this.$message({
-            message: that.$i18n.t("AssetsInPerson.minPrice"),
-            type: "error",
-            duration: 2000,
-            message_obj: {},
-            isLink: false,
-          });
-        }
-      });
-      that.showLoading = false;
-      that.$router.replace("/mine");
-    },
-    async message2() {
-      const chainId = await ethereum.request({
-        method: "eth_chainId",
-      });
-      return {
-        domain: {
-          chainId: chainId,
-          name: "Market",
-          verifyingContract: contractAddress.MarketAddress,
-          version: "1",
-        },
-
-        types: {
-          EIP712Domain: [
-            { name: "name", type: "string" },
-            { name: "version", type: "string" },
-            { name: "chainId", type: "uint256" },
-            { name: "verifyingContract", type: "address" },
-          ],
-          Buy: [
-            { name: "tokenId", type: "uint256" },
-            { name: "price", type: "uint256" },
-            { name: "timestamp", type: "uint256" },
-          ],
-        },
-      };
-    },
     toBigNumber(v) {
       return ethers.utils.bigNumberify(v.toString());
     },
@@ -800,28 +656,16 @@ export default {
     },
     async sure_buy_new() {
       let that = this;
-
       that.showLoading = true;
       that.sure_buy_dialogVisible = false;
-      // address,
-      // page,
-      // per_page,
-      // is_all,
-      // order_by,
-      // is_desc,
-      // token_id
-
-      let isBought = await getList(
+      let isBought = await sell_status(
         that.myOwner,
-        that.page + 1,
-        that.limit,
-        "",
-        "",
-        0,
-        that.myTokenID,
-        ""
-      );
-      if (isBought.data.content.length == 0) {
+        that.nftInMarket.nft,
+        that.nftInMarket.token_id
+      ).catch((err) => {
+        console.log(err);
+      });
+      if (!isBought) {
         that.showLoading = false;
         return this.$message({
           message: that.$i18n.t("Trans.fail"),
@@ -841,24 +685,31 @@ export default {
 
       let constract = that.getConstractMarket();
 
-      let n = isBought.data.content[0].sj_timestamp;
-      let sign = isBought.data.content[0].signature;
-      // let part_id = isBought.data.content[0].part_id;
+      let nonce = await constract.nonces(that.nftInMarket.owner);
+
       that.showLoading = true;
 
+      let o = {
+        from: that.nftInMarket.owner,
+        nft: that.nftInMarket.nft,
+        tokenId: that.nftInMarket.token_id,
+        amount: 1,
+        token:
+          that.nftInMarket.pay_kind == 0
+            ? "0x0000000000000000000000000000000000000000"
+            : "",
+        price: that.nftInMarket.price,
+        nonce: nonce.toString(),
+        timestamp: that.nftInMarket.sj_timestamp,
+      };
+
       let res = await constract
-        .buy(
-          that.myTokenID,
-          that.myPrice.toString(),
-          n,
-          that.myAddress,
-          that.payKind,
-          sign,
-          {
-            value: that.payKind == "0" ? that.toBigNumber(that.myPrice) : 0,
-          }
-        )
+        .buy(o, that.myAddress, that.nftInMarket.signature, {
+          value:
+            that.payKind == "0" ? that.toBigNumber(that.nftInMarket.price) : 0,
+        })
         .catch((err) => {
+          console.log(err);
           return -1;
         });
 
@@ -872,24 +723,25 @@ export default {
           isLink: true,
         });
       } else {
-        that.set_location_data(res.hash, "Buy", "購買", that.myTokenID);
+        that.set_location_data(
+          res.hash,
+          "Buy",
+          "購買",
+          that.nftInMarket.token_id,
+          that.nftInMarket.nft
+        );
 
-        await res.wait().catch((e) => {});
-        var obj = {
-          owner: that.myAddress,
-          token_id: that.myTokenID,
-          price: ethers.utils.parseEther(that.myPrice).toString(),
-          sj_timestamp: that.sj_timestamp,
-          signature: that.signature,
-        };
-
+        // await res.wait().catch((e) => {});
         that.timer = setInterval(async () => {
-          let res = await get_token_on_deposit([that.myTokenID]);
-
-          if (res.data.length == 0) {
+          let res = await sell_status(
+            that.nftInMarket.owner,
+            that.nftInMarket.nft,
+            that.nftInMarket.token_id
+          );
+          if (!res.data) {
             clearInterval(that.timer);
             that.showLoading = false;
-            that.$router.replace("/market");
+            that.$router.replace("/list");
           }
         }, 1000);
       }
@@ -906,14 +758,14 @@ export default {
     },
     async getGmd() {
       let that = this;
-      let gmd_per_page = 10000;
-      let gmd_page = 0;
+
       let result = await get_gmd_by_token_id(
+        1,
+        1000,
         that.myTokenID,
-        gmd_per_page,
-        gmd_page
+        that.contract_address
       );
-      that.gmd_list = result.data.content;
+      that.gmd_list = result.data;
       that.gmd_list.forEach((item) => {
         token.erc20.forEach((erc) => {
           if (erc.value == item.pay_kind) {
@@ -952,7 +804,7 @@ export default {
           return -1;
         }
 
-        that.set_location_data(appro.hash, "Approve", "批准", "");
+        that.set_location_data(appro.hash, "Approve", "批准", "", "");
         await appro.wait();
       }
     },
@@ -1057,15 +909,6 @@ export default {
     },
   },
   watch: {
-    nftPrice() {
-      let that = this;
-      if (Number(that.nftPrice.trim()) == 0) {
-        that.canSell = false;
-      } else {
-        that.canSell = true;
-      }
-      that.seePrice();
-    },
     sure_transfer_dialogVisible() {
       let that = this;
       if (that.sure_transfer_dialogVisible == false) {

@@ -131,7 +131,7 @@
 <script>
 import { ethers } from "ethers";
 import addr from "@/contract/Address.json";
-import { getList as getMarketList } from "@/api/apiMarket";
+import { getList as getMarketList, sell_status } from "@/api/apiMarket";
 export default {
   props: ["current_route"],
   data() {
@@ -179,19 +179,12 @@ export default {
         });
 
         window.ethereum.on("chainChanged", (data) => {
-          // this.reload();
           that.autoSwitch();
         });
       } catch (e) {
         console.log(e);
       }
       var txArrF = JSON.parse(localStorage.getItem("txArr"));
-      // if (txArrF) {
-      //   that.info = txArrF;
-      //   if (txArrF.length > 0) {
-      //     that.isfor = true;
-      //   }
-      // }
 
       that.provider = new ethers.providers.Web3Provider(window.ethereum);
       await that.autoSwitch();
@@ -201,6 +194,7 @@ export default {
           var txArr = JSON.parse(localStorage.getItem("txArr"));
           if (txArr) {
             for (let i = txArr.length - 1; i >= 0; i--) {
+              console.log(txArr[i]);
               if (
                 txArr[i].method == "Cancellisting" ||
                 txArr[i].method == "Buy"
@@ -208,18 +202,12 @@ export default {
                 let res;
                 switch (txArr[i].method) {
                   case "Cancellisting":
-                    res = await getMarketList(
-                      "",
-                      0,
-                      5,
-                      0,
-                      0,
-                      0,
-                      txArr[i].data,
-                      "",
-                      ""
+                    res = await sell_status(
+                      that.myAddress,
+                      txArr[i].nft,
+                      txArr[i].data
                     );
-                    if (res.data.content.length == 0) {
+                    if (!res.data) {
                       let massagestr;
                       that.$i18n.locale == "en"
                         ? (massagestr = "Cancellisting Successful")
@@ -236,20 +224,13 @@ export default {
                     break;
 
                   case "Buy":
-                    res = await getMarketList(
-                      "",
-                      0,
-                      5,
-                      0,
-                      0,
-                      0,
-                      txArr[i].data,
-                      "",
-                      ""
+                    res = await sell_status(
+                      that.myAddress,
+                      txArr[i].nft,
+                      txArr[i].data
                     );
-                    if (res.data.content.length == 0) {
+                    if (!res.data) {
                       let massagestr;
-
                       that.$i18n.locale == "en"
                         ? (massagestr = "Buy Successful")
                         : (massagestr = "購買成功");

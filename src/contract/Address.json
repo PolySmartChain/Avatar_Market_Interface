@@ -2,7 +2,7 @@
   "fee": "0.001",
   "chainId": 6999,
   "tokenStandard": "ERC721",
-  "MarketAddress": "0x1D983E89714399d3a69eB38E30B12d270061c1c5",
+  "MarketAddress": "0xbA001587707fD9A933d13bC025A2e3bE657F67ca",
   "wdc_address": "0xaC5d08999371F54a4c14f73941566160ce5D6460",
   "polydaoAddress": "0x23bAF78C4C6250A7A1D2d8336aa34f43fCd3fAda",
   "proxyAddress": "0xBE81507FA2b50FBB523f30C795A9F19ed5A21670",

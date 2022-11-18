@@ -306,9 +306,18 @@ export default {
     },
     async getTokenList(page, type) {
       let that = this;
-      let res = await getList(that.myAddress, 0, 10000, 1, "", "", "", "");
+
+      let res = await getList(
+        that.myAddress,
+        1,
+        10000,
+        "2",
+        "",
+        that.contract_address
+      );
+      console.log(res);
       if (res.code == 200) {
-        [...that.ava_list] = [...res.data.content];
+        [...that.ava_list] = [...res.data];
         that.ava_list.forEach((item) => {
           token.erc20.forEach((erc) => {
             if (item.pay_kind == erc.value) {
