@@ -1,8 +1,8 @@
 const path = require("path");
 const webpack = require("webpack");
-const CompressionWebpackPlugin = require('compression-webpack-plugin')
-const productionGzipExtensions = ['js', 'css']
-const isProduction = process.env.NODE_ENV === 'production'
+const CompressionWebpackPlugin = require("compression-webpack-plugin");
+const productionGzipExtensions = ["js", "css"];
+const isProduction = process.env.NODE_ENV === "production";
 const version = new Date().getTime();
 module.exports = {
   lintOnSave: false,
@@ -20,25 +20,30 @@ module.exports = {
     plugins: [
       // Ignore all locale files of moment.js
       new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/),
-      
+
       new CompressionWebpackPlugin({
-        algorithm: 'gzip',
-        test: new RegExp('\\.(' + productionGzipExtensions.join('|') + ')$'),
+        algorithm: "gzip",
+        test: new RegExp("\\.(" + productionGzipExtensions.join("|") + ")$"),
         threshold: 10240,
-        minRatio: 0.8
+        minRatio: 0.8,
       }),
       new webpack.optimize.LimitChunkCountPlugin({
-        maxChunks: 5, 
-        minChunkSize: 100
-      })
-    ]
+        maxChunks: 5,
+        minChunkSize: 100,
+      }),
+    ],
   },
-  chainWebpack: config => {
-    config
-      .plugin('html')
-      .tap(args => {
-        args[0].title= 'POLYJETCLUB'
-        return args
-      })
+  chainWebpack: (config) => {
+    config.plugin("html").tap((args) => {
+      args[0].title = "POLYJETCLUB";
+      return args;
+    });
+
+    config.module
+      .rule("images")
+      .test(/\.(png|jpe?g|gif|svg)(\?.*)?$/)
+      .use("image-webpack-loader")
+      .loader("image-webpack-loader")
+      .options({ bypassOnDebug: true });
   },
 };

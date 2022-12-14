@@ -13,6 +13,8 @@
     "compression-webpack-plugin": "1.1.12",
     "core-js": "^3.6.5",
     "ethers": "^4.0.47",
+    "image-webpack-loader": "^8.1.0",
+    "imagemin-pngquant": "^9.0.2",
     "jquery": "^3.6.0",
     "moment": "^2.29.1",
     "svg-sprite-loader": "^6.0.11",
@@ -55,7 +57,7 @@
       "parser": "babel-eslint"
     },
     "rules": {
-      "no-unused-vars":"off"
+      "no-unused-vars": "off"
     }
   },
   "browserslist": [
